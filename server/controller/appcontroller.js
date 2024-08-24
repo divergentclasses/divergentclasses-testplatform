@@ -119,6 +119,7 @@ const GetTest = async (req, res) => {
 const UploadQuestion = async (req, res) => {
     try {
         const { selectedType, ans, id, marks, negativemarks } = req.body;
+        console.log(selectedType, ans, id, marks, negativemarks);
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: process.env.CLOUDINARY_NAME,
             resource_type: 'auto'
