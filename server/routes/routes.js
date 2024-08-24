@@ -102,7 +102,6 @@ routes.get("/login/sucess", async (req, res) => {
 })
 
 routes.post("/logout", (req, res, next) => {
-
     try {
         req.logout(function (err) {
             if (err) { return next(err) }
@@ -111,7 +110,8 @@ routes.post("/logout", (req, res, next) => {
 
         res.clearCookie(COOKIE_NAME_USER, {
             path: "/",
-            signed: true,
+            signed: true, sameSite: 'none',
+            secure: true
         })
     } catch (err) {
         console.log(err)
