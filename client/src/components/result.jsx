@@ -72,11 +72,16 @@ export default function Result() {
                 <i className="fa-solid fa-file-arrow-up mr-2"></i> Tests
               </div>
             </Link>
-            <Link to={`/analytics/${id}`}>
-              <div className="p-6 last-txt  gh text-xl">
-                <i className="fa-solid fa-chart-simple mr-1"></i>Analytics
-              </div>
-            </Link>
+            {scoreData
+                ?.find((k) => k.PaperID === id)
+                ?.Students.find((k) => k.studentID === StudentID) ?(
+                  <Link to={`/analytics/${id}`}>
+                    <div className="p-6 last-txt  gh text-xl">
+                      <i className="fa-solid fa-chart-simple mr-1"></i>Analytics
+                    </div>
+                  </Link>
+            ):null
+            }
           </div>
           <div className="right-ts">
             <div className="flex justify-between items-center kh">
