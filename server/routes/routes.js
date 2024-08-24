@@ -23,9 +23,14 @@ cloudinary.config({
 });
 const multer = require('multer');
 const path = require('path');
+const imagesDir = path.join(__dirname, '../public/images');
+
+if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+}
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/images'))
+           cb(null, imagesDir);
 
     },
     filename: function (req, file, cb) {
