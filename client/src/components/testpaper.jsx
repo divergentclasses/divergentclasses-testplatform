@@ -1473,16 +1473,16 @@ export default function TestPaper() {
     if (toggle) {
       toggleFullscreen();
     }
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      openModal();
-      e.returnValue = "";
-    };
+    // const handleBeforeUnload = (e) => {
+    //   e.preventDefault();
+    //   openModal();
+    //   e.returnValue = "";
+    // };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    // window.addEventListener("beforeunload", handleBeforeUnload);
+    // return () => {
+    //   window.removeEventListener("beforeunload", handleBeforeUnload);
+    // };
   }, []);
 
   return (
