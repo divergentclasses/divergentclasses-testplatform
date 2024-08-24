@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await ChecksubmitPaperStatus(StudentID);
         setbtnStatus(res.result);
-        console.log(res.result);
+        // console.log(res.result);
       } catch (error) {
         console.error("Error fetching submit status:", error);
       }
