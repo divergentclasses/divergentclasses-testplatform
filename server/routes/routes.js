@@ -23,6 +23,7 @@ cloudinary.config({
 });
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const imagesDir = path.join(__dirname, '../public/images');
 
 if (!fs.existsSync(imagesDir)) {
