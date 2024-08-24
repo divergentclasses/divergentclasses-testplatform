@@ -154,8 +154,10 @@ export const AuthProvider = ({ children }) => {
     const fetchSubmitStatus = async () => {
       try {
         const response = await CheckSubmitPaper(PaperID, StudentID);
-        const { TestID, SubmitPaper } = response.data;
-        setSubmitStatus({ TestID, SubmitPaper });
+        if(response){
+          const { TestID, SubmitPaper } = response.data;
+          setSubmitStatus({ TestID, SubmitPaper });
+        }
       } catch (error) {
         console.error("Error fetching submit status:", error);
       }
