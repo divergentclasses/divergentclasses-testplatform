@@ -78,8 +78,13 @@ passport.serializeUser((user, done) => {
     done(null, user);
 })
 
-passport.deserializeUser((user, done) => {
-    done(null, user);
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await userdb.findById(id); // Fetch user by ID from the database
+        done(null, user);
+    } catch (error) {
+        done(error);
+    }
 });
 // initial google ouath login
 routes.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
