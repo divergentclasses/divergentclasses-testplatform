@@ -88,18 +88,28 @@ routes.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: `${process.env.FRONTEND_URI}/login`
 }))
 
-routes.get("/login/sucess", async (req, res) => {
-
-    const googleId = req.user?.googleId
-    if (googleId !== undefined) {
+routes.get("/login/success", async (req, res) => {
+    console.log("Request user object:", req.user); // Log the user object
+    
+    const googleId = req.user?.googleId;
+    if (googleId) {
+        console.log("Google ID found:", googleId); // Log the googleId if found
+        
         const user = await User.findOne({ googleId });
-        if (req.user) {
-            res.status(200).json({ message: "user login", user: user })
+        if (user) {
+            console.log("User found:", user); // Log the user if found in the database
+            
+            res.status(200).json({ message: "User login", user: user });
         } else {
-            res.status(400).json({ message: "Not Authorized" })
+            console.log("User not found in the database.");
+            res.status(400).json({ message: "User not found" });
         }
+    } else {
+        console.log("Google ID not found in req.user");
+        res.status(400).json({ message: "Not Authorized" });
     }
-})
+});
+
 
 routes.post("/logout", (req, res, next) => {
     try {
