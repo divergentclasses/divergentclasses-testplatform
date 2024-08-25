@@ -9,6 +9,8 @@ const OAuth2Strategy = require("passport-google-oauth2").Strategy
 const userdb = require('../model/userSchemaG')
 const COOKIE_NAME_USER = process.env.COOKIE_NAME_USER;
 const User = require('../model/userSchemaG')
+const MongoStore = require('connect-mongo');
+const session = require('express-session');
 
 
 const routes = express();
@@ -23,15 +25,9 @@ cloudinary.config({
 });
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
-const imagesDir = path.join(__dirname, '../public/images');
-
-if (!fs.existsSync(imagesDir)) {
-    fs.mkdirSync(imagesDir, { recursive: true });
-}
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-           cb(null, imagesDir);
+        cb(null, path.join(__dirname, '../public/images'))
 
     },
     filename: function (req, file, cb) {
@@ -40,12 +36,22 @@ const storage = multer.diskStorage({
     }
 })
 const upload = multer({ storage: storage })
+routes.use(session({
+    secret: process.env.SESSION_SECRET || 'your-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DATABASE_URL }),
+    cookie: { secure: true }
+}));
+
+routes.use(passport.initialize());
+routes.use(passport.session());
 
 passport.use(
     new OAuth2Strategy({
         clientID: process.env.CLIENTID,
         clientSecret: process.env.CLIENTSECRET,
-        callbackURL: "https://divergentclasses-testplatform.onrender.com/auth/google/callback",
+        callbackURL: "/auth/google/callback",
         scope: ["profile", "email"]
     },
         async (accessToken, refreshToken, profile, done) => {
@@ -80,7 +86,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await userdb.findById(id); // Fetch user by ID from the database
+        const user = await userdb.findById(id); 
         done(null, user);
     } catch (error) {
         done(error);
@@ -93,7 +99,8 @@ routes.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: `${process.env.FRONTEND_URI}/login`
 }))
 
-routes.get("/login/success", async (req, res) => {
+routes.get("/login/sucess", async (req, res) => {
+
     if (req.user && req.user.googleId) {
         const user = await User.findOne({ googleId: req.user.googleId });
         if (user) {
@@ -104,10 +111,10 @@ routes.get("/login/success", async (req, res) => {
     } else {
         res.status(400).json({ message: "Not Authorized" });
     }
-});
-
+})
 
 routes.post("/logout", (req, res, next) => {
+
     try {
         req.logout(function (err) {
             if (err) { return next(err) }
@@ -124,7 +131,6 @@ routes.post("/logout", (req, res, next) => {
         return res.status(404).json({ message: "ERROR", cause: err.message })
     }
 })
-
 routes.post('/createtest', middleware.verifyToken, appcontroller.CreateTest)
 routes.post('/updatetest', middleware.verifyToken, appcontroller.UpdateTest)
 routes.post('/deletetest', middleware.verifyToken, appcontroller.DeleteTest)
