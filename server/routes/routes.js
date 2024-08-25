@@ -89,23 +89,14 @@ routes.get("/auth/google/callback", passport.authenticate("google", {
 }))
 
 routes.get("/login/success", async (req, res) => {
-    console.log("Request user object:", req.user); // Log the user object
-    
-    const googleId = req.user?.googleId;
-    if (googleId) {
-        console.log("Google ID found:", googleId); // Log the googleId if found
-        
-        const user = await User.findOne({ googleId });
+    if (req.user && req.user.googleId) {
+        const user = await User.findOne({ googleId: req.user.googleId });
         if (user) {
-            console.log("User found:", user); // Log the user if found in the database
-            
             res.status(200).json({ message: "User login", user: user });
         } else {
-            console.log("User not found in the database.");
-            res.status(400).json({ message: "User not found" });
+            res.status(400).json({ message: "User not found in database" });
         }
     } else {
-        console.log("Google ID not found in req.user");
         res.status(400).json({ message: "Not Authorized" });
     }
 });
