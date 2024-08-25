@@ -210,7 +210,7 @@ export const ConductTest = async (id) => {
 
 export const getUser = async () => {
   try {
-    const response = await axios.get("/login/sucess", {
+    const response = await axios.get("/login/success", {
       withCredentials: true
     });
     return response.data;
