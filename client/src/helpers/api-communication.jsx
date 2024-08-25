@@ -377,12 +377,7 @@ export const NEOSEndOTP = async (otp, id, email) => {
 // paste backend link here
 export const LoginWithGoogle = async () => {
   try {
-    const res = window.open(
-      `${import.meta.env.VITE_BACKEND_URL}/auth/google/callback`,
-      "_self"
-    );
-    const data = await res.data;
-    return data;
+ window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google/callback`;
   } catch (error) {
     console.log(error.message);
   }
