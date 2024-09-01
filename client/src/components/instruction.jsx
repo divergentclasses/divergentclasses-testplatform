@@ -179,7 +179,7 @@ const OtherINSTRUCTION = ({ instructionfun }) => {
     try {
       const studentID = localStorage.getItem("studentID");
       const testID = localStorage.getItem("testId");
-      const duration = 1;
+      const duration = 120;
       const response = await axios.post("/start-exam", {
         testID,
         studentID,
