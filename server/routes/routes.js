@@ -51,7 +51,7 @@ passport.use(
     new OAuth2Strategy({
         clientID: process.env.CLIENTID,
         clientSecret: process.env.CLIENTSECRET,
-        callbackURL: "https://divergentclasses-testplatform.onrender.com/auth/google/callback",
+        callbackURL: "https://backendtest.divergentclasses.com/auth/google/callback",
         scope: ["profile", "email"]
     },
         async (accessToken, refreshToken, profile, done) => {
