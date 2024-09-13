@@ -657,7 +657,7 @@ const NewEmailOTP = async (req, res) => {
         return res.status(404).json({ message: "ERROR", cause: err.message })
     }
 }
-const sendOTP = (email, otpcode) => {
+const sendOTP = async (email, otpcode) => {
     const mailOptions = {
         from: 'devansh@divergentclasses.com',
         to: email,
