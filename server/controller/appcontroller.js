@@ -11,29 +11,38 @@ const COOKIE_NAME_USER = process.env.COOKIE_NAME_USER;
 const Answer = require('../model/answers');
 const Result = require('../model/result');
 
-const oauth2Client = new OAuth2(
-    process.env.CLIENTID,     // Google Client ID
-    process.env.CLIENTSECRET, // Google Client Secret
-    "https://developers.google.com/oauthplayground" // Redirect URL
-);
+const OAuth2 = google.auth.OAuth2;
 
-oauth2Client.setCredentials({
-    refresh_token: process.env.REFRESHTOKEN
-});
+async function createTransporter() {
+    const oauth2Client = new OAuth2(
+        process.env.CLIENTID,     // Google Client ID
+        process.env.CLIENTSECRET, // Google Client Secret
+        "https://developers.google.com/oauthplayground" // Redirect URL
+    );
 
-const accessToken = await oauth2Client.getAccessToken();
+    oauth2Client.setCredentials({
+        refresh_token: process.env.REFRESHTOKEN
+    });
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        type: 'OAuth2',
-        user: process.env.USER, // your email address
-        clientId: process.env.CLIENTID,
-        clientSecret: process.env.CLIENTSECRET,
-        refreshToken: process.env.REFRESHTOKEN,
-        accessToken: accessToken
+    try {
+        const accessToken = await oauth2Client.getAccessToken();
+
+        return nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                type: 'OAuth2',
+                user: process.env.USER, // your email address
+                clientId: process.env.CLIENTID,
+                clientSecret: process.env.CLIENTSECRET,
+                refreshToken: process.env.REFRESHTOKEN,
+                accessToken: accessToken.token // Note: .token is required for accessToken
+            }
+        });
+    } catch (error) {
+        console.error('Error creating transporter:', error);
+        throw error; // Re-throw the error if you want to handle it higher up
     }
-});
+}
 const basic = (req, res) => {
     res.send('hello from server')
 }
@@ -655,7 +664,7 @@ const sendOTP = (email, otpcode) => {
         subject: 'Email otp verification',
         html: `<p>Thank you to join divergent classes. Your OTP for email verification is <b>${otpcode}</b></p>`
     };
-
+    const transporter = await createTransporter();
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('Error:', error);
