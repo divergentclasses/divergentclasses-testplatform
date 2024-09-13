@@ -6,19 +6,32 @@ const jwt = require('jsonwebtoken')
 const User = require('../model/userSchemaG')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 const COOKIE_NAME_USER = process.env.COOKIE_NAME_USER;
 const Answer = require('../model/answers');
 const Result = require('../model/result');
 
+const oauth2Client = new OAuth2(
+    process.env.CLIENTID,     // Google Client ID
+    process.env.CLIENTSECRET, // Google Client Secret
+    "https://developers.google.com/oauthplayground" // Redirect URL
+);
+
+oauth2Client.setCredentials({
+    refresh_token: process.env.REFRESHTOKEN
+});
+
+const accessToken = await oauth2Client.getAccessToken();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
     auth: {
-        user: process.env.USER,
-        pass: process.env.PASS
+        type: 'OAuth2',
+        user: process.env.USER, // your email address
+        clientId: process.env.CLIENTID,
+        clientSecret: process.env.CLIENTSECRET,
+        refreshToken: process.env.REFRESHTOKEN,
+        accessToken: accessToken
     }
 });
 const basic = (req, res) => {
