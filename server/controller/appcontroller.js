@@ -28,16 +28,19 @@ async function createTransporter() {
         const { token } = await oauth2Client.getAccessToken();
 
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                type: 'OAuth2',
-                user: process.env.USER,
-                clientId: process.env.CLIENTID,
-                clientSecret: process.env.CLIENTSECRET,
-                refreshToken: process.env.REFRESHTOKEN,
-                accessToken: token
-            }
-        });
+    service: 'gmail',
+    auth: {
+        type: 'OAuth2',
+        user: process.env.USER,
+        clientId: process.env.CLIENTID,
+        clientSecret: process.env.CLIENTSECRET,
+        refreshToken: process.env.REFRESHTOKEN,
+        accessToken: accessToken.token
+    },
+    logger: true,  // Enable logging
+    debug: true    // Enable SMTP traffic debugging
+});
+
 
         return transporter;
     } catch (error) {
