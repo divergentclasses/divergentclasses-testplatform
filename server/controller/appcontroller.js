@@ -15,9 +15,9 @@ const OAuth2 = google.auth.OAuth2;
 
 async function createTransporter() {
     const oauth2Client = new OAuth2(
-        process.env.CLIENTID,     // Google Client ID
-        process.env.CLIENTSECRET, // Google Client Secret
-        "https://developers.google.com/oauthplayground" // Redirect URL
+        process.env.CLIENTID,
+        process.env.CLIENTSECRET,
+        "https://developers.google.com/oauthplayground"
     );
 
     oauth2Client.setCredentials({
@@ -25,9 +25,10 @@ async function createTransporter() {
     });
 
     try {
-        const accessToken = await oauth2Client.getAccessToken();
+        const { token } = await oauth2Client.getAccessToken();
+        console.log('Access Token:', token); // Log the token to verify it's being obtained
 
-       const transporter = nodemailer.createTransport({
+        const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 type: 'OAuth2',
@@ -35,20 +36,21 @@ async function createTransporter() {
                 clientId: process.env.CLIENTID,
                 clientSecret: process.env.CLIENTSECRET,
                 refreshToken: process.env.REFRESHTOKEN,
-                accessToken: accessToken.token
+                accessToken: token
             }
         });
 
-        // Test the transporter
         await transporter.verify();
         console.log('Transporter is ready to send emails.');
-        
+
         return transporter;
     } catch (error) {
         console.error('Error creating transporter:', error);
-        throw error; // Re-throw the error if you want to handle it higher up
+        console.error('Detailed error information:', error.response ? error.response.data : 'No response data');
+        throw error;
     }
 }
+
 const basic = (req, res) => {
     res.send('hello from server')
 }
