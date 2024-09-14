@@ -27,17 +27,23 @@ async function createTransporter() {
     try {
         const accessToken = await oauth2Client.getAccessToken();
 
-        return nodemailer.createTransport({
+       const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 type: 'OAuth2',
-                user: process.env.USER, // your email address
+                user: process.env.USER,
                 clientId: process.env.CLIENTID,
                 clientSecret: process.env.CLIENTSECRET,
                 refreshToken: process.env.REFRESHTOKEN,
-                accessToken: accessToken.token // Note: .token is required for accessToken
+                accessToken: accessToken.token
             }
         });
+
+        // Test the transporter
+        await transporter.verify();
+        console.log('Transporter is ready to send emails.');
+        
+        return transporter;
     } catch (error) {
         console.error('Error creating transporter:', error);
         throw error; // Re-throw the error if you want to handle it higher up
