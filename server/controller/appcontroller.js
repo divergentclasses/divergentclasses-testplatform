@@ -26,7 +26,6 @@ async function createTransporter() {
 
     try {
         const { token } = await oauth2Client.getAccessToken();
-        console.log('Access Token:', token); // Log the token to verify it's being obtained
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -40,13 +39,9 @@ async function createTransporter() {
             }
         });
 
-        await transporter.verify();
-        console.log('Transporter is ready to send emails.');
-
         return transporter;
     } catch (error) {
         console.error('Error creating transporter:', error);
-        console.error('Detailed error information:', error.response ? error.response.data : 'No response data');
         throw error;
     }
 }
