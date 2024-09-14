@@ -35,7 +35,7 @@ async function createTransporter() {
         clientId: process.env.CLIENTID,
         clientSecret: process.env.CLIENTSECRET,
         refreshToken: process.env.REFRESHTOKEN,
-        accessToken: accessToken.token
+        accessToken: token
     },
     logger: true,  // Enable logging
     debug: true    // Enable SMTP traffic debugging
