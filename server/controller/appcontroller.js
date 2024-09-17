@@ -10,44 +10,51 @@ const { google } = require('googleapis');
 const COOKIE_NAME_USER = process.env.COOKIE_NAME_USER;
 const Answer = require('../model/answers');
 const Result = require('../model/result');
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 
-const OAuth2 = google.auth.OAuth2;
+// const OAuth2 = google.auth.OAuth2;
 
-async function createTransporter() {
-    const oauth2Client = new OAuth2(
-        process.env.CLIENTID,
-        process.env.CLIENTSECRET,
-        "https://developers.google.com/oauthplayground"
-    );
+// async function createTransporter() {
+//     const oauth2Client = new OAuth2(
+//         process.env.CLIENTID,
+//         process.env.CLIENTSECRET,
+//         "https://developers.google.com/oauthplayground"
+//     );
 
-    oauth2Client.setCredentials({
-        refresh_token: process.env.REFRESHTOKEN
-    });
+//     oauth2Client.setCredentials({
+//         refresh_token: process.env.REFRESHTOKEN
+//     });
 
-    try {
-        const { token } = await oauth2Client.getAccessToken();
+//     try {
+//         const { token } = await oauth2Client.getAccessToken();
 
-        const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        type: 'OAuth2',
-        user: process.env.USER,
-        clientId: process.env.CLIENTID,
-        clientSecret: process.env.CLIENTSECRET,
-        refreshToken: process.env.REFRESHTOKEN,
-        accessToken: token
-    },
-    logger: true,  // Enable logging
-    debug: true    // Enable SMTP traffic debugging
+//         const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//         type: 'OAuth2',
+//         user: process.env.USER,
+//         clientId: process.env.CLIENTID,
+//         clientSecret: process.env.CLIENTSECRET,
+//         refreshToken: process.env.REFRESHTOKEN,
+//         accessToken: token
+//     },
+//     logger: true,  // Enable logging
+//     debug: true    // Enable SMTP traffic debugging
+// });
+//         return transporter;
+//     } catch (error) {
+//         console.error('Error creating transporter:', error);
+//         throw error;
+//     }
+// }
+const sesClient = new SESClient({
+    region: process.env.AWS_SES_REGION, // Example: 'us-east-1'
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
 });
 
-
-        return transporter;
-    } catch (error) {
-        console.error('Error creating transporter:', error);
-        throw error;
-    }
-}
 
 const basic = (req, res) => {
     res.send('hello from server')
@@ -663,21 +670,47 @@ const NewEmailOTP = async (req, res) => {
         return res.status(404).json({ message: "ERROR", cause: err.message })
     }
 }
+// const sendOTP = async (email, otpcode) => {
+//     const mailOptions = {
+//         from: 'devansh@divergentclasses.com',
+//         to: email,
+//         subject: 'Email otp verification',
+//         html: `<p>Thank you to join divergent classes. Your OTP for email verification is <b>${otpcode}</b></p>`
+//     };
+//     const transporter = await createTransporter();
+//     transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//             console.error('Error:', error);
+//         } else {
+//             // console.log('Email sent:', info.response);
+//         }
+//     });
+// }
 const sendOTP = async (email, otpcode) => {
-    const mailOptions = {
-        from: 'devansh@divergentclasses.com',
-        to: email,
-        subject: 'Email otp verification',
-        html: `<p>Thank you to join divergent classes. Your OTP for email verification is <b>${otpcode}</b></p>`
+    const params = {
+        Destination: {
+            ToAddresses: [email], // Email addresses of the recipients
+        },
+        Message: {
+            Body: {
+                Html: {
+                    Charset: "UTF-8",
+                    Data: `<p>Thank you to join divergent classes. Your OTP for email verification is <b>${otpcode}</b></p>`,
+                },
+            },
+            Subject: {
+                Charset: 'UTF-8',
+                Data: 'Email otp verification',
+            },
+        },
+        Source: 'devansh@divergentclasses.com', // Your verified email address
     };
-    const transporter = await createTransporter();
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error:', error);
-        } else {
-            // console.log('Email sent:', info.response);
-        }
-    });
+    try {
+        const res = await sesClient.send(new SendEmailCommand(params))
+        // console.log('Email has been sent', res)
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 const StartExam = async (req, res) => {
