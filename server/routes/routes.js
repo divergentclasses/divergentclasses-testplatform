@@ -100,7 +100,7 @@ routes.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: `${process.env.FRONTEND_URI}/login`
 }))
 
-routes.get("/login/sucess", async (req, res) => {
+routes.get("/login/success", async (req, res) => {
 
     if (req.user && req.user.googleId) {
         const user = await User.findOne({ googleId: req.user.googleId });
