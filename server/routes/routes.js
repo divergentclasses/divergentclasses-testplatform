@@ -81,16 +81,18 @@ passport.use(
     )
 )
 passport.serializeUser((user, done) => {
-    done(null, user);
-})
+    done(null, user.id);  
+});
 
-passport.deserializeUser(async (user, done) => {
+passport.deserializeUser(async (id, done) => {
     try {
+        const user = await userdb.findById(id); 
         done(null, user);
     } catch (error) {
         done(error);
     }
 });
+
 // initial google ouath login
 routes.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 routes.get("/auth/google/callback", passport.authenticate("google", {
